@@ -34,7 +34,7 @@ Pinning a specific Carp version and enabling SDL:
 ```yaml
       - uses: carp-lang/setup-carp@v1
         with:
-          carp-ref: v0.5.5
+          carp-ref: v0.6.0
           sdl: true
 ```
 
@@ -80,3 +80,7 @@ jobs:
 ## License
 
 Apache 2.0.
+
+<hr/>
+
+Have fun!
