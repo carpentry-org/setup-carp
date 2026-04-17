@@ -38,6 +38,9 @@ outputs:
   carp-sha:
     description: 'Resolved commit SHA of the built Carp compiler.'
     value: ${{ steps.export.outputs.carp-sha }}
+  carp-version:
+    description: 'Human-readable version of the built Carp compiler (git describe output, e.g. v0.6.0 or v0.6.0-3-gabcdef).'
+    value: ${{ steps.export.outputs.carp-version }}
 
 runs:
   using: 'composite'
@@ -98,10 +101,12 @@ runs:
       run: |
         CARP_DIR="$(cd '${{ inputs.install-path }}' && pwd)"
         CARP_SHA="$(git -C "$CARP_DIR" rev-parse HEAD)"
+        CARP_VERSION="$(git -C "$CARP_DIR" describe --tags --always)"
         echo "CARP_DIR=$CARP_DIR" >> "$GITHUB_ENV"
         echo "$HOME/.local/bin" >> "$GITHUB_PATH"
         echo "carp-dir=$CARP_DIR" >> "$GITHUB_OUTPUT"
         echo "carp-sha=$CARP_SHA" >> "$GITHUB_OUTPUT"
+        echo "carp-version=$CARP_VERSION" >> "$GITHUB_OUTPUT"
 
     - name: Verify installation
       shell: bash

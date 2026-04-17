@@ -66,10 +66,11 @@ jobs:
 
 ## Outputs
 
-| Output       | Description                                                     |
-|--------------|-----------------------------------------------------------------|
-| `carp-dir`   | Absolute path of the Carp source directory (same as `CARP_DIR`). |
-| `carp-sha`   | Resolved commit SHA of the built compiler.                      |
+| Output         | Description                                                              |
+|----------------|--------------------------------------------------------------------------|
+| `carp-dir`     | Absolute path of the Carp source directory (same as `CARP_DIR`).         |
+| `carp-sha`     | Resolved commit SHA of the built compiler.                               |
+| `carp-version` | Human-readable version string via `git describe --tags --always` (e.g. `v0.6.0`, `v0.6.0-3-gabcdef`). |
 
 ## Notes
 

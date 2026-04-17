@@ -24,8 +24,8 @@ jobs:
         shell: bash
         run: |
           echo "CARP_DIR=$CARP_DIR"
+          echo "carp-version=${{ steps.setup.outputs.carp-version }}"
           echo "carp-sha=${{ steps.setup.outputs.carp-sha }}"
-          carp --version
 
       - name: Run smoke test
         shell: bash
