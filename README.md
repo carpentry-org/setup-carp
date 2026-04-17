@@ -25,14 +25,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: carp-lang/setup-carp@v1
+      - uses: carpentry-org/setup-carp@v1
       - run: carp -x test/all.carp
 ```
 
 Pinning a specific Carp version and enabling SDL:
 
 ```yaml
-      - uses: carp-lang/setup-carp@v1
+      - uses: carpentry-org/setup-carp@v1
         with:
           carp-ref: v0.6.0
           sdl: true
@@ -49,7 +49,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: carp-lang/setup-carp@v1
+      - uses: carpentry-org/setup-carp@v1
       - run: carp -x test/all.carp
 ```
 

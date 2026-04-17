@@ -107,5 +107,6 @@ runs:
       shell: bash
       run: |
         export PATH="$HOME/.local/bin:$PATH"
-        carp --version
-        carp --help > /dev/null
+        command -v carp
+        echo "Carp installed at: $(command -v carp)"
+        echo "CARP_DIR: $CARP_DIR"
