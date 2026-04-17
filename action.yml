@@ -30,6 +30,10 @@ inputs:
     description: 'Directory (relative to the workspace) where Carp is cloned and built.'
     required: false
     default: '.carp-src'
+  rewrite-git-urls:
+    description: 'Rewrite git@github.com: URLs to https://github.com/ so Carp can fetch public git-based dependencies without an SSH key configured on the runner. Set to false if you have your own SSH auth set up.'
+    required: false
+    default: 'true'
 
 outputs:
   carp-dir:
@@ -45,6 +49,12 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: Rewrite git@github.com URLs to https
+      if: inputs.rewrite-git-urls == 'true'
+      shell: bash
+      run: |
+        git config --global url."https://github.com/".insteadOf "git@github.com:"
+
     - name: Setup Haskell toolchain
       uses: haskell-actions/setup@v2
       with:

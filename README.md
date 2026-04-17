@@ -63,6 +63,7 @@ jobs:
 | `ghc-version`     | (resolver)        | GHC version. Empty means use whatever `stack.yaml` pins.                    |
 | `sdl`             | `false`           | If `true`, install SDL2 system packages.                                    |
 | `install-path`    | `.carp-src`       | Workspace-relative path where Carp is cloned and built.                     |
+| `rewrite-git-urls`| `true`            | Rewrite `git@github.com:` to `https://github.com/` so `(load "git@...")` works without an SSH key. Set to `false` if you have your own SSH auth configured. |
 
 ## Outputs
 
