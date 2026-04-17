@@ -14,14 +14,6 @@ inputs:
     description: 'Repository slug to fetch Carp from.'
     required: false
     default: 'carp-lang/Carp'
-  stack-version:
-    description: 'Stack version passed to haskell-actions/setup.'
-    required: false
-    default: 'latest'
-  ghc-version:
-    description: 'GHC version. Leave empty to use the resolver pinned in stack.yaml.'
-    required: false
-    default: ''
   sdl:
     description: 'Install SDL system packages so SDL-dependent tests can run.'
     required: false
@@ -55,12 +47,14 @@ runs:
       run: |
         git config --global url."https://github.com/".insteadOf "git@github.com:"
 
-    - name: Setup Haskell toolchain
-      uses: haskell-actions/setup@v2
-      with:
-        enable-stack: true
-        stack-version: ${{ inputs.stack-version }}
-        ghc-version: ${{ inputs.ghc-version }}
+    - name: Verify stack is available
+      shell: bash
+      run: |
+        if ! command -v stack >/dev/null; then
+          echo "::error::stack not found on runner PATH. setup-carp relies on the pre-installed stack on GitHub-hosted runners. If you are on a self-hosted or custom runner, install stack (or prepend haskell-actions/setup@v2) before this action." >&2
+          exit 1
+        fi
+        stack --version
 
     - name: Install SDL (Linux)
       if: inputs.sdl == 'true' && runner.os == 'Linux'
