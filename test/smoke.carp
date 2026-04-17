@@ -1,0 +1,8 @@
+(load "Test.carp")
+(use Test)
+
+(deftest test
+  (assert-equal test
+                4
+                (+ 2 2)
+                "setup-carp can compile and run a trivial Carp program"))

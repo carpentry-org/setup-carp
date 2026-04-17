@@ -1,0 +1,111 @@
+name: 'Setup Carp'
+description: 'Install the Carp compiler and configure CARP_DIR for library CI.'
+author: 'carp-lang'
+branding:
+  icon: 'package'
+  color: 'purple'
+
+inputs:
+  carp-ref:
+    description: 'Git ref (branch, tag, or SHA) of the Carp compiler to build.'
+    required: false
+    default: 'master'
+  carp-repository:
+    description: 'Repository slug to fetch Carp from.'
+    required: false
+    default: 'carp-lang/Carp'
+  stack-version:
+    description: 'Stack version passed to haskell-actions/setup.'
+    required: false
+    default: 'latest'
+  ghc-version:
+    description: 'GHC version. Leave empty to use the resolver pinned in stack.yaml.'
+    required: false
+    default: ''
+  sdl:
+    description: 'Install SDL system packages so SDL-dependent tests can run.'
+    required: false
+    default: 'false'
+  install-path:
+    description: 'Directory (relative to the workspace) where Carp is cloned and built.'
+    required: false
+    default: '.carp-src'
+
+outputs:
+  carp-dir:
+    description: 'Absolute path to the Carp source directory (also exported as CARP_DIR).'
+    value: ${{ steps.export.outputs.carp-dir }}
+  carp-sha:
+    description: 'Resolved commit SHA of the built Carp compiler.'
+    value: ${{ steps.export.outputs.carp-sha }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Haskell toolchain
+      uses: haskell-actions/setup@v2
+      with:
+        enable-stack: true
+        stack-version: ${{ inputs.stack-version }}
+        ghc-version: ${{ inputs.ghc-version }}
+
+    - name: Install SDL (Linux)
+      if: inputs.sdl == 'true' && runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libsdl2-dev \
+          libsdl2-gfx-dev \
+          libsdl2-image-dev \
+          libsdl2-mixer-dev \
+          libsdl2-ttf-dev
+
+    - name: Install SDL (macOS)
+      if: inputs.sdl == 'true' && runner.os == 'macOS'
+      shell: bash
+      run: |
+        brew install sdl2 sdl2_gfx sdl2_image sdl2_mixer sdl2_ttf
+
+    - name: Checkout Carp
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.carp-repository }}
+        ref: ${{ inputs.carp-ref }}
+        path: ${{ inputs.install-path }}
+
+    - name: Cache stack artifacts
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.stack
+          ${{ inputs.install-path }}/.stack-work
+        key: setup-carp-${{ runner.os }}-${{ inputs.carp-ref }}-${{ hashFiles(format('{0}/stack.yaml.lock', inputs.install-path), format('{0}/*.cabal', inputs.install-path)) }}
+        restore-keys: |
+          setup-carp-${{ runner.os }}-${{ inputs.carp-ref }}-
+          setup-carp-${{ runner.os }}-
+
+    - name: Build and install Carp
+      shell: bash
+      working-directory: ${{ inputs.install-path }}
+      run: |
+        mkdir -p "$HOME/.local/bin"
+        stack install --local-bin-path "$HOME/.local/bin"
+
+    - name: Export CARP_DIR and PATH
+      id: export
+      shell: bash
+      run: |
+        CARP_DIR="$(cd '${{ inputs.install-path }}' && pwd)"
+        CARP_SHA="$(git -C "$CARP_DIR" rev-parse HEAD)"
+        echo "CARP_DIR=$CARP_DIR" >> "$GITHUB_ENV"
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        echo "carp-dir=$CARP_DIR" >> "$GITHUB_OUTPUT"
+        echo "carp-sha=$CARP_SHA" >> "$GITHUB_OUTPUT"
+
+    - name: Verify installation
+      shell: bash
+      run: |
+        export PATH="$HOME/.local/bin:$PATH"
+        carp --version
+        carp --help > /dev/null
