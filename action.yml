@@ -83,15 +83,21 @@ runs:
         ref: ${{ inputs.carp-ref }}
         path: ${{ inputs.install-path }}
 
+    - name: Resolve Carp SHA
+      id: carp-head
+      shell: bash
+      run: |
+        sha="$(git -C '${{ inputs.install-path }}' rev-parse HEAD)"
+        echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
     - name: Cache stack artifacts
       uses: actions/cache@v4
       with:
         path: |
           ~/.stack
           ${{ inputs.install-path }}/.stack-work
-        key: setup-carp-${{ runner.os }}-${{ inputs.carp-ref }}-${{ hashFiles(format('{0}/stack.yaml.lock', inputs.install-path), format('{0}/*.cabal', inputs.install-path)) }}
+        key: setup-carp-${{ runner.os }}-${{ steps.carp-head.outputs.sha }}-${{ hashFiles(format('{0}/stack.yaml.lock', inputs.install-path), format('{0}/*.cabal', inputs.install-path)) }}
         restore-keys: |
-          setup-carp-${{ runner.os }}-${{ inputs.carp-ref }}-
           setup-carp-${{ runner.os }}-
 
     - name: Build and install Carp
