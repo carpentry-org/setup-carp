@@ -47,6 +47,16 @@ runs:
       run: |
         git config --global url."https://github.com/".insteadOf "git@github.com:"
 
+    - name: Select macOS SDK
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        # Keep the SDK paired with the active Xcode toolchain. The system's
+        # Command Line Tools SDK can be newer than that linker understands.
+        sdkroot="$(xcrun --sdk macosx --show-sdk-path)"
+        echo "SDKROOT=$sdkroot" >> "$GITHUB_ENV"
+        echo "Using macOS SDK: $sdkroot"
+
     - name: Ensure stack is available
       shell: bash
       run: |
