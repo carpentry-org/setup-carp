@@ -48,6 +48,7 @@ runs:
         git config --global url."https://github.com/".insteadOf "git@github.com:"
 
     - name: Select macOS SDK
+      id: macos-sdk
       if: runner.os == 'macOS'
       shell: bash
       run: |
@@ -56,6 +57,8 @@ runs:
         sdkroot="$(xcrun --sdk macosx --show-sdk-path)"
         echo "SDKROOT=$sdkroot" >> "$GITHUB_ENV"
         echo "Using macOS SDK: $sdkroot"
+        sdkkey=$(printf '%s\n' "$sdkroot" "$(xcrun --sdk macosx --show-sdk-build-version)" | shasum -a 256 | cut -d ' ' -f 1)
+        echo "cache-key=$sdkkey" >> "$GITHUB_OUTPUT"
 
     - name: Ensure stack is available
       shell: bash
@@ -106,9 +109,10 @@ runs:
         path: |
           ~/.stack
           ${{ inputs.install-path }}/.stack-work
-        key: setup-carp-${{ runner.os }}-${{ steps.carp-head.outputs.sha }}-${{ hashFiles(format('{0}/stack.yaml.lock', inputs.install-path), format('{0}/*.cabal', inputs.install-path)) }}
+        # GHC and package metadata retain SDK paths across builds.
+        key: setup-carp-v2-${{ runner.os }}-${{ runner.arch }}-${{ steps.macos-sdk.outputs.cache-key || 'no-sdk' }}-${{ steps.carp-head.outputs.sha }}-${{ hashFiles(format('{0}/stack.yaml.lock', inputs.install-path), format('{0}/*.cabal', inputs.install-path)) }}
         restore-keys: |
-          setup-carp-${{ runner.os }}-
+          setup-carp-v2-${{ runner.os }}-${{ runner.arch }}-${{ steps.macos-sdk.outputs.cache-key || 'no-sdk' }}-
 
     - name: Build and install Carp
       shell: bash

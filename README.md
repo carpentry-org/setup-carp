@@ -9,7 +9,7 @@ A composite GitHub Action that installs the [Carp](https://github.com/carp-lang/
 - Optionally installs SDL2 system packages (for tests that use the SDL bindings).
 - Clones `carp-lang/Carp` at the ref you pick and builds it with `stack install`.
 - Puts the `carp` binary on `PATH` and exports `CARP_DIR` so the compiler can find its `core/` sources.
-- Caches `~/.stack` and `.stack-work` keyed on the ref and `stack.yaml.lock`, so subsequent runs reuse the build.
+- Caches `~/.stack` and `.stack-work` by OS, architecture, macOS SDK, Carp commit, and dependency files, so subsequent runs reuse compatible builds.
 
 Runs on `ubuntu-latest` and `macos-latest`. On custom or self-hosted runners that don't ship with `stack`, prepend [`haskell-actions/setup@v2`](https://github.com/haskell-actions/setup) yourself.
 
