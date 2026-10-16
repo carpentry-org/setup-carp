@@ -5,7 +5,7 @@ A composite GitHub Action that installs the [Carp](https://github.com/carp-lang/
 ## What it does
 
 - Uses the `stack` pre-installed on GitHub-hosted runners. Stack downloads the GHC version Carp's `stack.yaml` pins into `~/.stack/programs/` on first run.
-- On macOS, exports the active Xcode SDK as `SDKROOT` so GHC and later C builds use an SDK that matches the selected toolchain.
+- On macOS, selects the installed Command Line Tools and exports `DEVELOPER_DIR` and `SDKROOT`, so GHC's library paths and later C builds use the matching compiler, linker, and SDK.
 - Optionally installs SDL2 system packages (for tests that use the SDL bindings).
 - Clones `carp-lang/Carp` at the ref you pick and builds it with `stack install`.
 - Puts the `carp` binary on `PATH` and exports `CARP_DIR` so the compiler can find its `core/` sources.
